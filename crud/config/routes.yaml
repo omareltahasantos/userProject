@@ -1,0 +1,9 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+delete_user:
+  path: /api/users/{id}
+  controller: App\Controller\UserController::deleteUser
+  methods: DELETE
