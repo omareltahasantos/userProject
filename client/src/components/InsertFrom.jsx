@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
+import { SnackBarApp } from './SnackBarApp';
+
 
 const InsertForm = ({ fetchUsers }) => {
   const [userData, setUserData] = useState({
@@ -9,6 +11,11 @@ const InsertForm = ({ fetchUsers }) => {
     lastname: '',
     email: '',
     password: ''
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    color: '',
+    message: ''
   });
 
   const [showForm, setShowForm] = useState(true);
@@ -24,11 +31,21 @@ const InsertForm = ({ fetchUsers }) => {
     axios.get('https://localhost:8000/api/users',{params:userData})
       .then(response => {
         fetchUsers(); 
+        setSnackbar({
+          open: true,
+          color: 'success',
+          message: 'Usuario insertado exitosamente'
+        });
         setInsertSuccess(true);
         setShowForm(false); // Cierra el formulario
       })
       .catch(error => {
         console.error('Error al insertar el usuario:', error);
+        setSnackbar({
+          open: true,
+          color: 'error',
+          message: 'Usuario no insertado exitosamente'
+        });
       });
   };
 
@@ -88,9 +105,7 @@ const InsertForm = ({ fetchUsers }) => {
           </Button>
         </form>
       )}
-      {insertSuccess && (
-        <p>¡Usuario insertado correctamente!</p>
-      )}
+      
       {insertSuccess && (
         <Button onClick={handleOpenForm} variant="contained" color="primary">
           Añadir otro Usuario

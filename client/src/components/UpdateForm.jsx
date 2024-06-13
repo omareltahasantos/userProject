@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
+import { SnackBarApp } from './SnackBarApp';
+
+
 
 const UpdateForm = ({ user, fetchUsers }) => {
   const [userData, setUserData] = useState({
@@ -9,6 +12,11 @@ const UpdateForm = ({ user, fetchUsers }) => {
     lastname: '',
     email: '',
     password: ''
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    color: '',
+    message: ''
   });
 
   const [showForm, setShowForm] = useState(false);
@@ -38,9 +46,19 @@ const UpdateForm = ({ user, fetchUsers }) => {
         console.log(response);
         fetchUsers();
         setUpdateSuccess(true); // Marcar la actualización como exitosa
+        setSnackbar({
+          open: true,
+          color: 'success',
+          message: 'Usuario  actualizado exitosamente'
+        });
       })
       .catch(error => {
         console.error('Error al actualizar el usuario:', error);
+        setSnackbar({
+          open: true,
+          color: 'error',
+          message: 'Usuarios no actualizado exitosamente'
+        });
       });
   };
 
@@ -96,9 +114,7 @@ const UpdateForm = ({ user, fetchUsers }) => {
         </form>
       )}
 
-      {updateSuccess && (
-        <p>¡Usuario actualizado correctamente!</p>
-      )}
+      
 
       {updateSuccess && (
         <Button onClick={handleCloseForm} variant="contained" color="primary">
