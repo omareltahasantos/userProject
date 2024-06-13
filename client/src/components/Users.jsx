@@ -19,6 +19,7 @@ const Users = () => {
       .then(response => {
         setUsers(response.data);
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'success',
           message: 'Usuarios cargados exitosamente'
@@ -27,6 +28,7 @@ const Users = () => {
       .catch(error => {
         console.error('Error al acceder a la API', error);
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'error',
           message: 'Error al cargar los usuarios'
@@ -43,6 +45,7 @@ const Users = () => {
       .then(() => {
         setUsers(users.filter(user => user.id !== userId));
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'success',
           message: 'Usuario eliminado exitosamente'
@@ -51,6 +54,7 @@ const Users = () => {
       .catch(error => {
         console.error('Error al eliminar el usuario:', error);
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'error',
           message: 'Error al eliminar el usuario'

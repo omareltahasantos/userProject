@@ -47,6 +47,7 @@ const UpdateForm = ({ user, fetchUsers }) => {
         fetchUsers();
         setUpdateSuccess(true); // Marcar la actualización como exitosa
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'success',
           message: 'Usuario  actualizado exitosamente'
@@ -55,6 +56,7 @@ const UpdateForm = ({ user, fetchUsers }) => {
       .catch(error => {
         console.error('Error al actualizar el usuario:', error);
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'error',
           message: 'Usuarios no actualizado exitosamente'

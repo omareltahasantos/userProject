@@ -32,6 +32,7 @@ const InsertForm = ({ fetchUsers }) => {
       .then(response => {
         fetchUsers(); 
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'success',
           message: 'Usuario insertado exitosamente'
@@ -42,6 +43,7 @@ const InsertForm = ({ fetchUsers }) => {
       .catch(error => {
         console.error('Error al insertar el usuario:', error);
         setSnackbar({
+          ...snackbar,
           open: true,
           color: 'error',
           message: 'Usuario no insertado exitosamente'
