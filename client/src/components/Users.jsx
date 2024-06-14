@@ -4,17 +4,35 @@ import DeleteButton from './DeleteButton';
 import InsertButton from './InsertButton';
 import UpdateButton from './UpdateButton';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { SnackBarApp } from './SnackBarApp';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    color: '',
+    message: ''
+  });
 
   const fetchUsers = () => {
     axios.get('https://localhost:8000/api/user')
       .then(response => {
         setUsers(response.data);
+        setSnackbar({
+          ...snackbar,
+          open: true,
+          color: 'success',
+          message: 'Usuarios cargados exitosamente'
+        });
       })
       .catch(error => {
         console.error('Error al acceder a la API', error);
+        setSnackbar({
+          ...snackbar,
+          open: true,
+          color: 'error',
+          message: 'Error al cargar los usuarios'
+        });
       });
   };
 
@@ -26,19 +44,40 @@ const Users = () => {
     axios.delete(`https://localhost:8000/api/users/${userId}`)
       .then(() => {
         setUsers(users.filter(user => user.id !== userId));
-        
+        setSnackbar({
+          ...snackbar,
+          open: true,
+          color: 'success',
+          message: 'Usuario eliminado exitosamente'
+        });
       })
       .catch(error => {
         console.error('Error al eliminar el usuario:', error);
+        setSnackbar({
+          ...snackbar,
+          open: true,
+          color: 'error',
+          message: 'Error al eliminar el usuario'
+        });
       });
   };
 
   const handleInsert = (newUser) => {
     setUsers([...users, newUser]);
+    setSnackbar({
+      open: true,
+      color: 'success',
+      message: 'Usuario insertado exitosamente'
+    });
   };
 
   const handleUpdate = (updatedUser) => {
     setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
+    setSnackbar({
+      open: true,
+      color: 'success',
+      message: 'Usuario actualizado exitosamente'
+    });
   };
 
   return (
@@ -74,6 +113,12 @@ const Users = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <SnackBarApp
+        open={snackbar.open}
+        handleClose={() => setSnackbar({ ...snackbar, open: false })}
+        color={snackbar.color}
+        text={snackbar.message}
+      />
     </div>
   );
 };
