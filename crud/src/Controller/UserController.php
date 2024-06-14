@@ -7,24 +7,38 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\UserRepository;
 
 class UserController extends AbstractController
 {
-    #[Route('api/user', name: 'app_user')]
+   
 
-    public function getUsers(EntityManagerInterface $em){
-        // Configurar las cabeceras CORS para permitir solicitudes desde http://localhost:3000
+    #[Route('/api/user', name: 'api_user')]
+    public function index(Request $request, EntityManagerInterface $em)
+    {
+        $limit = $request->query->getInt('limit', 10); // Default limit
+        $offset = $request->query->getInt('offset', 0); // Default offset
+        
+
         $users = $em->getRepository(User::class)->createQueryBuilder('u')
         -> select('u.id','u.name','u.lastname','u.email','u.password')
         -> getQuery()
+        ->setFirstResult($offset)
+        ->setMaxResults($limit)
         -> getResult();
-    $data = [];
 
+        $totalUsers = $em->getRepository(User::class)->createQueryBuilder('u')
+        ->select('count(u.id)')
+        ->getQuery()
+        ->getSingleScalarResult();
     
 
-    
-    // Devolver la respuesta
-    return new JsonResponse($users);
+        return new JsonResponse([
+            'data' => $users,
+            'total' => $totalUsers,
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
     }
 
     #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]

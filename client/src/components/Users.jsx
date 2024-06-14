@@ -4,7 +4,8 @@ import DeleteButton from './DeleteButton';
 import InsertButton from './InsertButton';
 import UpdateButton from './UpdateButton';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import { SnackBarApp } from './SnackBarApp';
+import {SnackBarApp} from './SnackBarApp';
+import Pagination from './Pagination'; 
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -13,12 +14,15 @@ const Users = () => {
     color: '',
     message: ''
   });
+  const [limit, setLimit] = useState(10); 
+  const [offset, setOffset] = useState(0); 
+  const [totalUsers, setTotalUsers] = useState(0); 
 
-  // Función para cargar los usuarios desde la API
-  const fetchUsers = () => {
-    axios.get('https://localhost:8000/api/user')
+  const fetchUsers = (limit, offset) => {
+    axios.get(`https://localhost:8000/api/user?limit=${limit}&offset=${offset}`)
       .then(response => {
-        setUsers(response.data);
+        setUsers(response.data.data); 
+        setTotalUsers(response.data.total); 
         setSnackbar({
           ...snackbar,
           open: true,
@@ -38,8 +42,8 @@ const Users = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(limit, offset);
+  }, [offset, limit]);
 
   const handleDelete = (userId) => {
     axios.delete(`https://localhost:8000/api/users/${userId}`)
@@ -81,6 +85,10 @@ const Users = () => {
     });
   };
 
+  const handlePageChange = (newOffset) => {
+    setOffset(newOffset);
+  };
+
   return (
     <div>
       <h1>Lista de usuarios</h1>
@@ -114,6 +122,14 @@ const Users = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Pagination
+        limit={limit}
+        offset={offset}
+        total={totalUsers}
+        onPageChange={handlePageChange}
+      />
+
       <SnackBarApp
         open={snackbar.open}
         handleClose={() => setSnackbar({ ...snackbar, open: false })}
