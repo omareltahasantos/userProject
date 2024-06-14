@@ -14,6 +14,7 @@ const Users = () => {
     message: ''
   });
 
+  
   const fetchUsers = () => {
     axios.get('https://localhost:8000/api/user')
       .then(response => {
