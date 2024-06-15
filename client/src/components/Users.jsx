@@ -3,7 +3,7 @@ import axios from 'axios';
 import DeleteButton from './DeleteButton';
 import InsertButton from './InsertButton';
 import UpdateButton from './UpdateButton';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from '@material-ui/core';
 import {SnackBarApp} from './SnackBarApp';
 import Pagination from './Pagination'; 
 
@@ -17,10 +17,12 @@ const Users = () => {
   const [limit, setLimit] = useState(10); 
   const [offset, setOffset] = useState(0); 
   const [totalUsers, setTotalUsers] = useState(0); 
+  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
+
 
   const fetchUsers = (limit, offset) => {
-    axios.get(`https://localhost:8000/api/user?limit=${limit}&offset=${offset}`)
-      .then(response => {
+    axios.get(`https://localhost:8000/api/user?limit=${limit}&offset=${offset}&search=${searchTerm}`)      
+    .then(response => {
         setUsers(response.data.data); 
         setTotalUsers(response.data.total); 
         setSnackbar({
@@ -42,8 +44,8 @@ const Users = () => {
   };
 
   useEffect(() => {
-    fetchUsers(limit, offset);
-  }, [offset, limit]);
+    fetchUsers(limit, offset, searchTerm);
+  }, [offset, limit, searchTerm]);
 
   const handleDelete = (userId) => {
     axios.delete(`https://localhost:8000/api/users/${userId}`)
@@ -89,10 +91,22 @@ const Users = () => {
     setOffset(newOffset);
   };
 
+  const handleSearchChange = (event) => {
+      setSearchTerm(event.target.value);
+      setOffset(0);
+    };
+
   return (
     <div>
       <h1>Lista de usuarios</h1>
       <InsertButton fetchUsers={fetchUsers} />
+      <TextField
+        label="Buscar por nombre, apellido o correo electrónico"
+        variant="outlined"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        style={{ marginBottom: '20px' }}
+      />
       <TableContainer>
         <Table>
           <TableHead>
