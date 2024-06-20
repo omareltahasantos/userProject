@@ -7,25 +7,49 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\UserRepository;
+use Doctrine\ORM\QueryBuilder;
 
-class UserController extends AbstractController
-{
-    #[Route('api/user', name: 'app_user')]
 
-    public function getUsers(EntityManagerInterface $em){
-        // Configurar las cabeceras CORS para permitir solicitudes desde http://localhost:3000
-        $users = $em->getRepository(User::class)->createQueryBuilder('u')
-        -> select('u.id','u.name','u.lastname','u.email','u.password')
-        -> getQuery()
-        -> getResult();
-    $data = [];
-
+    class UserController extends AbstractController
+    {
     
 
-    
-    // Devolver la respuesta
-    return new JsonResponse($users);
+        #[Route('/api/user', name: 'api_user')]
+        public function index(Request $request, EntityManagerInterface $em)
+        {
+            $limit = $request->query->getInt('limit', 10); // Default limit
+    $offset = $request->query->getInt('offset', 0); // Default offset
+    $searchTerm = $request->query->get('search', ''); // Search term
+
+    // Crear un QueryBuilder para la entidad User
+    $qb = $em->getRepository(User::class)->createQueryBuilder('u')
+        ->select('u.id', 'u.name', 'u.lastname', 'u.email', 'u.password')
+        ->setFirstResult($offset)
+        ->setMaxResults($limit);
+
+    // Aplicar filtro de búsqueda si se proporciona un término de búsqueda
+    if (!empty($searchTerm)) {
+        $qb->where('u.name LIKE :searchTerm OR u.lastname LIKE :searchTerm OR u.email LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%');
     }
+
+    // Obtener los resultados
+    $users = $qb->getQuery()->getResult();
+
+    // Obtener el total de usuarios sin aplicar limit y offset
+    $totalUsers = $em->getRepository(User::class)->createQueryBuilder('u')
+        ->select('count(u.id)')
+        ->getQuery()
+        ->getSingleScalarResult();
+
+    return new JsonResponse([
+        'data' => $users,
+        'total' => $totalUsers,
+        'limit' => $limit,
+        'offset' => $offset,
+    ]);
+}
 
     #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function deleteUser(User $user, EntityManagerInterface $entityManager): JsonResponse
